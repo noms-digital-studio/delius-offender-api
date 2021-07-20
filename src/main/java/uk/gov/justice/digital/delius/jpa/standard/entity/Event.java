@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -128,6 +129,11 @@ public class Event {
     @JoinColumn(name = "COURT_ID")
     @ManyToOne(fetch = FetchType.LAZY)
     private Court court;
+
+    @JoinColumn(name = "EVENT_ID")
+    @OneToMany(fetch = FetchType.LAZY)
+    @Where(clause = "SOFT_DELETED != 1")
+    private List<AdditionalSentence> additionalSentences;
 
     public boolean hasCpsPack() {
         return StringUtils.isNotEmpty(cpsAlfrescoDocumentId)

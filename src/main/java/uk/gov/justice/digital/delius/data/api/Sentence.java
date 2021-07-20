@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @Builder
@@ -32,4 +33,7 @@ public class Sentence {
     private String terminationReason;
     @ApiModelProperty(value = "Sentence type and description")
     private KeyValue sentenceType;
+
+    @ApiModelProperty(name = "Additional sentences if present")
+    private List<AdditionalSentence> additionalSentences;
 }

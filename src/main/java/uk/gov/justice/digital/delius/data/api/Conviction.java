@@ -52,4 +52,7 @@ public class Conviction {
 
     @ApiModelProperty(name = "Sentencing court appearance or the latest court appearance otherwise")
     private CourtAppearanceBasic courtAppearance;
+
+    @ApiModelProperty(name = "Notes about this conviction", example = "Some conviction notes")
+    private String notes;
 }
