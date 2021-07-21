@@ -99,7 +99,6 @@ public class ConvictionTransformer {
                 .responsibleCourt(Optional.ofNullable(event.getCourt()).map(CourtTransformer::courtOf).orElse(null))
                 .courtAppearance(courtAppearances.map(CourtAppearanceBasicTransformer::latestOrSentencingCourtAppearanceOf).orElse(null))
                 .awaitingPsr(courtAppearances.map(CourtAppearanceBasicTransformer::awaitingPsrOf).orElse(false))
-                .notes(event.getNotes())
                 .build();
     }
 

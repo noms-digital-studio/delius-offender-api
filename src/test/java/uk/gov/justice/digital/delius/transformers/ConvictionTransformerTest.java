@@ -476,16 +476,6 @@ class ConvictionTransformerTest {
         }
     }
 
-    @Test
-    void notesMappedFromEvent() {
-        assertThat(ConvictionTransformer.convictionOf(
-            anEvent()
-                .toBuilder()
-                .notes("Some notes")
-                .build()).getNotes()
-        ).isEqualTo("Some notes");
-    }
-
     @Nested
     class AdditionalSentences {
         @Test
