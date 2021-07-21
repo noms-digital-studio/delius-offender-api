@@ -20,6 +20,7 @@ import uk.gov.justice.digital.delius.jpa.standard.entity.UpwAppointment;
 import uk.gov.justice.digital.delius.jpa.standard.entity.UpwDetails;
 import uk.gov.justice.digital.delius.util.EntityHelper;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -474,6 +475,52 @@ class ConvictionTransformerTest {
                 .build();
         }
     }
+
+    @Nested
+    class AdditionalSentences {
+        @Test
+        void mappedFromEvent() {
+            final var additionalSentence = EntityHelper.anAdditionalSentence();
+            final var source =  anEvent().toBuilder()
+                .disposal(aDisposal())
+                .additionalSentences(List.of(additionalSentence))
+                .build();
+            final var observed = ConvictionTransformer.convictionOf(source);
+            assertThat(observed.getSentence().getAdditionalSentences())
+                .hasSize(1)
+                .first()
+                .hasFieldOrPropertyWithValue("additionalSentenceId", 100L)
+                .hasFieldOrPropertyWithValue("type.description", "Disqualified from Driving")
+                .hasFieldOrPropertyWithValue("type.code", "DISQ")
+                .hasFieldOrPropertyWithValue("amount", BigDecimal.valueOf(100))
+                .hasFieldOrPropertyWithValue("length", 6L)
+                .hasFieldOrPropertyWithValue("notes", "Additional Sentence 1");
+        }
+
+        @Test
+        void ignoredWhenNull() {
+            final var source = anEvent().toBuilder().disposal(aDisposal()).build();
+            final var observed = ConvictionTransformer.convictionOf(source);
+            assertThat(observed.getSentence().getAdditionalSentences()).isNull();
+        }
+
+        @Test
+        void mappedToEmptyWhenEmpty() {
+            final var source =  anEvent().toBuilder().disposal(aDisposal()).additionalSentences(List.of()).build();
+            final var observed = ConvictionTransformer.convictionOf(source);
+            assertThat(observed.getSentence().getAdditionalSentences()).isEmpty();
+        }
+
+        @Test
+        void ignoredWhenNoSentence() {
+            final var additionalSentence = EntityHelper.anAdditionalSentence();
+            final var source =  anEvent().toBuilder().additionalSentences(List.of(additionalSentence)).build();
+            final var observed = ConvictionTransformer.convictionOf(source);
+            assertThat(observed.getSentence()).isNull();
+        }
+    }
+
+
 
     private AdditionalOffence anAdditionalOffence() {
         return AdditionalOffence

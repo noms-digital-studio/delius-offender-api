@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.delius.transformers;
 
 import com.google.common.collect.ImmutableList;
+import uk.gov.justice.digital.delius.data.api.AdditionalSentence;
 import uk.gov.justice.digital.delius.data.api.Appointments;
 import uk.gov.justice.digital.delius.data.api.Conviction;
 import uk.gov.justice.digital.delius.data.api.Custody;
@@ -86,7 +87,9 @@ public class ConvictionTransformer {
                 .convictionId(event.getEventId())
                 .index(event.getEventNumber())
                 .offences(offencesOf(event))
-                .sentence(Optional.ofNullable(event.getDisposal()).map(ConvictionTransformer::sentenceOf).orElse(null))
+                .sentence(Optional.ofNullable(event.getDisposal())
+                    .map(disposal -> sentenceOf(disposal, event.getAdditionalSentences()))
+                    .orElse(null))
                 .custody(Optional
                         .ofNullable(event.getDisposal())
                         .flatMap(disposal -> Optional.ofNullable(disposal.getCustody()).map(ConvictionTransformer::custodyOf))
@@ -97,6 +100,16 @@ public class ConvictionTransformer {
                 .courtAppearance(courtAppearances.map(CourtAppearanceBasicTransformer::latestOrSentencingCourtAppearanceOf).orElse(null))
                 .awaitingPsr(courtAppearances.map(CourtAppearanceBasicTransformer::awaitingPsrOf).orElse(false))
                 .build();
+    }
+
+    private static AdditionalSentence additionalSentenceOf(uk.gov.justice.digital.delius.jpa.standard.entity.AdditionalSentence additionalSentence) {
+        return AdditionalSentence.builder()
+            .additionalSentenceId(additionalSentence.getAdditionalSentenceId())
+            .type(KeyValueTransformer.keyValueOf(additionalSentence.getAdditionalSentenceType()))
+            .amount(additionalSentence.getAmount())
+            .length(additionalSentence.getLength())
+            .notes(additionalSentence.getNotes())
+            .build();
     }
 
     private static KeyValue outcomeOf(List<CourtAppearance> courtAppearances) {
@@ -123,7 +136,7 @@ public class ConvictionTransformer {
                 .build();
     }
 
-    private static Sentence sentenceOf(Disposal disposal) {
+    private static Sentence sentenceOf(Disposal disposal, List<uk.gov.justice.digital.delius.jpa.standard.entity.AdditionalSentence> additionalSentences) {
         return Sentence.builder()
                 .sentenceId(disposal.getDisposalId())
                 .defaultLength(disposal.getLength())
@@ -151,7 +164,11 @@ public class ConvictionTransformer {
                 .expectedSentenceEndDate(Optional.ofNullable(disposal.getEnteredSentenceEndDate())
                         .orElse(disposal.getExpectedSentenceEndDate()))
                 .sentenceType(sentenceTypeOf(disposal.getDisposalType()))
+                .additionalSentences(Optional.ofNullable(additionalSentences)
+                    .map(x -> x.stream().map(ConvictionTransformer::additionalSentenceOf).collect(toList()))
+                    .orElse(null))
                 .build();
+
     }
 
     private static KeyValue sentenceTypeOf(DisposalType disposalType) {

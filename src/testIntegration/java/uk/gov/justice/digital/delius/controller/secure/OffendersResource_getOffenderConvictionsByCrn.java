@@ -3,7 +3,9 @@ package uk.gov.justice.digital.delius.controller.secure;
 import org.junit.jupiter.api.Test;
 import uk.gov.justice.digital.delius.data.api.Conviction;
 import uk.gov.justice.digital.delius.data.api.Offence;
+import uk.gov.justice.digital.delius.data.api.Sentence;
 
+import java.math.BigDecimal;
 import java.util.stream.Stream;
 
 import static io.restassured.RestAssured.given;
@@ -40,7 +42,18 @@ class OffendersResource_getOffenderConvictionsByCrn extends IntegrationTestBase 
             .hasFieldOrPropertyWithValue("courtAppearance.appearanceType.code", "S")
             .hasFieldOrPropertyWithValue("courtAppearance.appearanceType.description", "Sentence")
             .hasFieldOrPropertyWithValue("courtAppearance.courtName", "Sheffield Magistrates Court")
-            .hasFieldOrPropertyWithValue("responsibleCourt.courtName", "Sheffield Magistrates Court");
+            .hasFieldOrPropertyWithValue("responsibleCourt.courtName", "Sheffield Magistrates Court")
+            // Should have mapped additional sentences
+            .extracting(Conviction::getSentence)
+            .extracting(Sentence::getAdditionalSentences).asList()
+            .hasSize(1)
+            .first()
+            .hasFieldOrPropertyWithValue("additionalSentenceId", 2500002005L)
+            .hasFieldOrPropertyWithValue("type.description", "Disqualified from Driving")
+            .hasFieldOrPropertyWithValue("type.code", "DISQ")
+            .hasFieldOrPropertyWithValue("amount", BigDecimal.valueOf(100))
+            .hasFieldOrPropertyWithValue("length", 6L)
+            .hasFieldOrPropertyWithValue("notes", "Additional Sentence 1");
     }
 
     @Test

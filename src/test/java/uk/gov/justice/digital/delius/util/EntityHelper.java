@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.delius.util;
 
 import com.google.common.collect.ImmutableList;
+import uk.gov.justice.digital.delius.jpa.standard.entity.AdditionalSentence;
 import uk.gov.justice.digital.delius.jpa.standard.entity.Address;
 import uk.gov.justice.digital.delius.jpa.standard.entity.AddressAssessment;
 import uk.gov.justice.digital.delius.jpa.standard.entity.AddressAssessmentDocument;
@@ -72,6 +73,7 @@ import uk.gov.justice.digital.delius.jpa.standard.entity.UpwDetails;
 import uk.gov.justice.digital.delius.jpa.standard.entity.UpwProject;
 import uk.gov.justice.digital.delius.jpa.standard.entity.User;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -982,6 +984,19 @@ public class EntityHelper {
         return StandardReference.builder()
             .codeValue(codeValue)
             .codeDescription(codeDescription)
+            .build();
+    }
+
+    public static AdditionalSentence anAdditionalSentence() {
+        return AdditionalSentence.builder()
+            .additionalSentenceId(100L)
+            .additionalSentenceType(aStandardReference("DISQ", "Disqualified from Driving"))
+            .amount(BigDecimal.valueOf(100))
+            .length(6L)
+            .notes("Additional Sentence 1")
+            .softDeleted(false)
+            .eventID(200L)
+            .offenderId(300L)
             .build();
     }
 
